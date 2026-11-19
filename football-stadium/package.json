@@ -7,7 +7,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "scripts": {
-  "dev": "node plugin.js & vite",
+  "dev": "node plugin.cjs & vite",
   "build": "vite build",
   "preview": "vite preview"
 },
